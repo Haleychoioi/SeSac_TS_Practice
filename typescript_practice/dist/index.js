@@ -1,4 +1,10 @@
 "use strict";
+/* TypeScript 사용하는 이유는 코드의 안정성과 유지보수성을 높이려고 사용합니다
+any , unknown 을 남용 악마유혹
+변수가 가질 수 있는 타입을 최대한 구체적으로 명시하려는 습관을 들이는 것이 중요합니다.
+union 타입과 같은 기능을 적극적으로 활용하여 불필요한 타입 오류를 방지하고,
+더 견고하고 예측 가능한 코드를 작성
+*/
 /*
 1. boolean
 boolean 타입은 참(true) 또는 거짓(false) 두 가지 값만을 나타냅니다.
@@ -112,7 +118,7 @@ var DayOfWeek;
 const today = DayOfWeek.MONDAY;
 console.log(`현재 요일: ${DayOfWeek} (${DayOfWeek.MONDAY})`);
 /*
-readonly
+7. readonly
 - readonly 키워드는 TypeScript에서만 사용되는 키워드입니다.
 - 클래스의 속성(Property)이나 인터페이스의 속성을 불변(Immutable)으로 만들 때 사용
 - readonly로 선언된 속성은 생성자(Constructor) 내부에서 한 번만 초기화될 수 있으며, 그 이후로는 값을 변경할 수 없습니다.
@@ -131,6 +137,14 @@ console.log(`제품 ID: ${laptop.productId}`);
 console.log(`제품명: ${laptop.productName}`);
 laptop.productName = "고급형 노트북"; // productName 속성 변경
 console.log(`변경 제품명: ${laptop.productName}`);
+/*
+8. any
+- any 타입은 모든 타입의 슈퍼 타입
+- any 타입으로 선언된 변수에는 어떤 타입의 값이든 저장할 수 있다는 의미
+- JavaScript의 Object 타입처럼, 모든 값을 수용할 수 있는 '만능' 타입
+- any 타입은 TypeScript의 타입 안정성을 포기하게 만드는 가장 위험한 도구
+- any를 사용하면 TypeScript의 타입 검사 기능이 무력화되어, 잠재적인 런타임 오류를 컴파일 시점에 잡아내지 못하게 됩니다.
+*/
 let flexiblevalue;
 flexiblevalue = 10;
 console.log(flexiblevalue);
@@ -140,3 +154,72 @@ flexiblevalue = { id: 1, type: "data" };
 console.log(flexiblevalue);
 let num = flexiblevalue;
 console.log(num);
+/*
+9. unknown
+- unknown 타입은 any 타입과 비슷하게 모든 타입의 값을 저장할 수 있습니다.
+- any와는 다르게 더 안전한 방식으로 동작
+- unknown 타입의 변수에 할당된 값을 다른 특정 타입의 변수에 할당하거나, 그 값을 직접 사용하려면 명시적으로 타입이 무엇인지 확인
+- 즉, 사용하기 전에 반드시 타입 체크를 하도록 강제하도록 만듦
+
+10. union
+- unknown 타입은 안전하게 타입을 다룰 수 있지만 결국 값을 사용할 때마다 매번 타입을 확인해야하는 번거로움
+- union 타입은 변수가 여러 타입 중 하나를 가질 수 있도록 선언할 때 사용
+- A 또는 B 또는 C와 같은 논리적 OR(|) 연산자처럼, 정의된 여러 타입 중 하나만 만족 OK
+*/
+function printId(id) {
+    if (typeof id === "string") {
+        console.log(`ID는 문자열입니다: ${id.toUpperCase()}`);
+    }
+    else {
+        console.log(`ID는 숫자입니다: ${id.toFixed(2)}`);
+    }
+}
+printId("spartan123");
+printId(789012);
+/*
+- 타입 가드 (Type Guard)
+- TypeScript는 코드를 실행하기 전에 타입 오류를 잡는 강력한 기능을 제공하지만,
+- 때로는 런타임에 변수의 실제 타입을 확인하고 싶을 때가 있습니다.
+- 이때 사용하는 것이 바로 **타입 가드 (Type Guard)**입니다.
+- 타입 가드는 특정 스코프 내에서 변수의 타입을 좁히는(narrowing) 역할을 하여,
+- 해당 타입의 속성이나 메서드를 안전하게 사용할 수 있도록 돕습니다.
+
+- typeof
+- 원시 타입(string, number, boolean, symbol, bigint, undefined)을 체크할 때 사용
+
+- instanceof
+- 특정 클래스의 인스턴스인지 확인할 때 사용
+*/
+class Car {
+    drive() {
+        console.log("자동차가 운전됩니다.");
+    }
+}
+class Bicycle {
+    pedal() {
+        console.log("자전거 페달을 밟습니다.");
+    }
+}
+function moveVehicle(vehicle) {
+    if (vehicle instanceof Car) {
+        vehicle.drive();
+    }
+    else {
+        vehicle.pedal();
+    }
+}
+function makeSound(animal) {
+    if ("bark" in animal) {
+        animal.bark();
+        console.log(`품종: ${animal.breed}`);
+    }
+    else {
+        animal.meow();
+        console.log(`골골송 여부: ${animal.purr}`);
+    }
+}
+const myDog = { bark: () => console.log("멍멍!"), breed: "골든 리트리버" };
+const myCat = { meow: () => console.log("야옹~"), purr: true };
+function isFish(animal) {
+    return animal.swim !== undefined;
+}
